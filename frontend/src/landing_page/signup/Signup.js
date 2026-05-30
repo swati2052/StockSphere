@@ -17,12 +17,12 @@ const Signup = () => {
     const verifyUser = async () => {
       try {
         const { data } = await axios.post(
-          "http://localhost:3002/verify",
+          `${process.env.REACT_APP_API_URL}/verify`,
           {},
           { withCredentials: true }
         );
         if (data.status) {
-          window.location.href = "http://localhost:3001/";
+          window.location.href = process.env.REACT_APP_DASHBOARD_URL;
         }
       } catch (err) {
         console.log(err);
@@ -53,7 +53,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:3002/signup",
+        `${process.env.REACT_APP_API_URL}/signup`,
         {
           ...inputValue,
         },
@@ -63,7 +63,7 @@ const Signup = () => {
       if (success) {
         handleSuccess(message);
         setTimeout(() => {
-          window.location.href = "http://localhost:3001/"; // Redirect to dashboard
+          window.location.href = process.env.REACT_APP_DASHBOARD_URL; // Redirect to dashboard
         }, 1000);
       } else {
         handleError(message);

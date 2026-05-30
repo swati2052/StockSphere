@@ -29,7 +29,7 @@ const Chatbot = () => {
     setInput("");
 
     try {
-      const response = await axios.post("http://localhost:3002/chat", 
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/chat`, 
         { message: userMessage },
         { withCredentials: true }
       );

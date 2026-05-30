@@ -13,12 +13,12 @@ const Home = () => {
     const verifyUser = async () => {
       try {
         const { data } = await axios.post(
-          "http://localhost:3002/verify",
+          `${process.env.REACT_APP_API_URL}/verify`,
           {},
           { withCredentials: true }
         );
         if (!data.status) {
-          window.location.href = "http://localhost:3000/login";
+          window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/login`;
         } else {
           setUsername(data.user);
           toast(`Welcome ${data.user}`, {
@@ -26,7 +26,7 @@ const Home = () => {
           });
         }
       } catch (err) {
-        window.location.href = "http://localhost:3000/login";
+        window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/login`;
       }
     };
     verifyUser();

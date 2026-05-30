@@ -16,8 +16,8 @@ const Menu = ({ username }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:3002/logout", {}, { withCredentials: true });
-      window.location.href = "http://localhost:3000/";
+      await axios.post(`${process.env.REACT_APP_API_URL}/logout`, {}, { withCredentials: true });
+      window.location.href = process.env.REACT_APP_FRONTEND_URL;
     } catch (err) {
       console.log(err);
     }
@@ -89,7 +89,7 @@ const Menu = ({ username }) => {
           <li>
             <a
               style={{ textDecoration: "none" }}
-              href="http://localhost:3000/"
+              href={process.env.REACT_APP_FRONTEND_URL}
             >
               <p className={menuClass}>
                 Home
