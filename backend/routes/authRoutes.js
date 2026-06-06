@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const router = express.Router();
+const { userVerification } = require("../middlewares/authMiddleware");
 
 const createSecretToken = (id) => {
   return jwt.sign({ id }, process.env.TOKEN_KEY || "YOUR_SECRET_KEY", {
@@ -63,9 +64,12 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
+router.post("/verify", userVerification);
+
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.status(200).json({ message: "User logged out successfully", success: true });
 });
 
 module.exports = router;
+

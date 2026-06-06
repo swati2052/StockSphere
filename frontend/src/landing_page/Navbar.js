@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
 function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg bg-white border-bottom">
@@ -8,13 +7,13 @@ function Navbar() {
       <div className="container-fluid">
 
         {/* LEFT: Logo */}
-        <Link className="navbar-brand d-flex align-items-center" to="/">
+        <a className="navbar-brand d-flex align-items-center" href="#">
           <img
-            src="media/images/new.png"
+            src="media/images/stockspherelogo.png"
             alt="Logo"
             style={{ width: "120px", objectFit: "contain" }}
           />
-        </Link>
+        </a>
 
         {/* Toggle */}
         <button

@@ -1,108 +1,99 @@
 require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
-
-const authRoute = require("./routes/authRoutes");
-const chatRoute = require("./routes/chatRoutes");
-const { userVerification, requireAuth } = require("./middlewares/authMiddleware");
 
 const { HoldingsModel } = require("./model/HoldingsModel");
+
 const { PositionsModel } = require("./model/PositionsModel");
-const { OrderModel } = require("./model/OrderModel");
+const { OrdersModel } = require("./model/OrdersModel");
+
+const authRoutes = require("./routes/authRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+const { requireAuth } = require("./middlewares/authMiddleware");
 
 const PORT = process.env.PORT || 3002;
 const uri = process.env.MONGO_URL;
 
 const app = express();
 
-app.use((req, res, next) => {
-  console.log(`[REQ] ${req.method} ${req.url}`);
-  next();
-});
-
-app.use(
-  cors({
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:3000",
-      process.env.DASHBOARD_URL || "http://localhost:3001"
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
-app.use(cookieParser());
+app.use(cors({
+  origin: ["http://localhost:3000", "http://localhost:3001"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 app.use(bodyParser.json());
-app.use(express.json());
+app.use(cookieParser());
 
-mongoose.connect(uri)
-  .then(() => {
-    console.log("Database connected");
-    app.listen(PORT, () => {
-        console.log(`App started on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Database connection error:", err);
-  });
+app.use("/", authRoutes);
+app.use("/chat", chatRoutes);
 
-app.use("/", authRoute);
-app.use("/chat", chatRoute);
-app.post("/verify", userVerification);
-
-// Sample endpoints that the dashboard probably expects
 app.get("/allHoldings", requireAuth, async (req, res) => {
-  try {
-    let allHoldings = await HoldingsModel.find({ user: req.user._id });
-    res.json(allHoldings);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  let allHoldings = await HoldingsModel.find({ user: req.user._id });
+  res.json(allHoldings);
 });
 
 app.get("/allPositions", requireAuth, async (req, res) => {
-  try {
-    let allPositions = await PositionsModel.find({ user: req.user._id });
-    res.json(allPositions);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  let allPositions = await PositionsModel.find({});
+  res.json(allPositions);
 });
 
 app.post("/newOrder", requireAuth, async (req, res) => {
-  try {
-    let newOrder = new OrderModel({
-      name: req.body.name,
-      qty: req.body.qty,
-      price: req.body.price,
-      mode: req.body.mode,
-      user: req.user._id,
-    });
-    await newOrder.save();
-    
-    // Also simulate adding it to Holdings for the user so it shows up
+  let newOrder = new OrdersModel({
+    name: req.body.name,
+    qty: req.body.qty,
+    price: req.body.price,
+    mode: req.body.mode,
+    user: req.user._id,
+  });
+
+  await newOrder.save();
+
+  const existingHolding = await HoldingsModel.findOne({ name: req.body.name, user: req.user._id });
+  if (existingHolding) {
     if (req.body.mode === "BUY") {
-      let holding = await HoldingsModel.findOne({ name: req.body.name, user: req.user._id });
-      if (holding) {
-        holding.qty += Number(req.body.qty);
-        holding.avg = ((holding.avg * (holding.qty - req.body.qty)) + (req.body.price * req.body.qty)) / holding.qty;
-        await holding.save();
+      let newQty = existingHolding.qty + Number(req.body.qty);
+      let newAvg = ((existingHolding.avg * existingHolding.qty) + (Number(req.body.price) * Number(req.body.qty))) / newQty;
+      existingHolding.qty = newQty;
+      existingHolding.avg = newAvg;
+      await existingHolding.save();
+    } else if (req.body.mode === "SELL") {
+      let newQty = existingHolding.qty - Number(req.body.qty);
+      if (newQty > 0) {
+        existingHolding.qty = newQty;
+        await existingHolding.save();
       } else {
-        await HoldingsModel.create({
-          name: req.body.name,
-          qty: req.body.qty,
-          avg: req.body.price,
-          price: req.body.price,
-          net: "+0.00%",
-          day: "+0.00%",
-          user: req.user._id,
-        });
+        await HoldingsModel.deleteOne({ _id: existingHolding._id });
       }
     }
-    res.send("Order saved!");
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } else {
+    if (req.body.mode === "BUY") {
+      let newHolding = new HoldingsModel({
+        name: req.body.name,
+        qty: req.body.qty,
+        avg: req.body.price,
+        price: req.body.price,
+        net: "+0.00%",
+        day: "+0.00%",
+        user: req.user._id,
+      });
+      await newHolding.save();
+    }
   }
+
+  res.send("Order saved!");
 });
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log("App started!");
+    mongoose.connect(uri);
+    console.log("DB started!");
+  });
+}
+
+module.exports = app;
+
