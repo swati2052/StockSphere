@@ -29,7 +29,7 @@ const Chatbot = () => {
     setInput("");
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/chat`, 
+      const response = await axios.post(`${"https://stocksphere-z675.onrender.com"}/chat`, 
         { message: userMessage },
         { withCredentials: true }
       );

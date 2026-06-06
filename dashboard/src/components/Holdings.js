@@ -8,7 +8,7 @@ const Holdings = () => {
   const [allHoldings, setAllHoldings] = useState([]);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/allHoldings`, { withCredentials: true }).then((res) => {
+    axios.get(`${"https://stocksphere-z675.onrender.com"}/allHoldings`, { withCredentials: true }).then((res) => {
       // console.log(res.data);
       setAllHoldings(res.data);
     });

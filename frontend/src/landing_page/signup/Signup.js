@@ -17,12 +17,12 @@ const Signup = () => {
     const verifyUser = async () => {
       try {
         const { data } = await axios.post(
-          `${process.env.REACT_APP_API_URL}/verify`,
+          `${"https://stocksphere-z675.onrender.com"}/verify`,
           {},
           { withCredentials: true }
         );
         if (data.status) {
-          window.location.href = process.env.REACT_APP_DASHBOARD_URL;
+          window.location.href = "https://stock-sphere-v5xd.vercel.app";
         }
       } catch (err) {
         console.log(err);
@@ -53,7 +53,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        `${process.env.REACT_APP_API_URL}/signup`,
+        `${"https://stocksphere-z675.onrender.com"}/signup`,
         {
           ...inputValue,
         },
@@ -63,7 +63,7 @@ const Signup = () => {
       if (success) {
         handleSuccess(message);
         setTimeout(() => {
-          window.location.href = process.env.REACT_APP_DASHBOARD_URL; // Redirect to dashboard
+          window.location.href = "https://stock-sphere-v5xd.vercel.app"; // Redirect to dashboard
         }, 1000);
       } else {
         handleError(message);

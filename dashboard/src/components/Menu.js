@@ -16,8 +16,8 @@ const Menu = ({ username }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/logout`, {}, { withCredentials: true });
-      window.location.href = process.env.REACT_APP_FRONTEND_URL;
+      await axios.post(`${"https://stocksphere-z675.onrender.com"}/logout`, {}, { withCredentials: true });
+      window.location.href = "https://stock-sphere-kbz9.vercel.app";
     } catch (err) {
       console.log(err);
     }
@@ -89,7 +89,7 @@ const Menu = ({ username }) => {
           <li>
             <a
               style={{ textDecoration: "none" }}
-              href={process.env.REACT_APP_FRONTEND_URL}
+              href={"https://stock-sphere-kbz9.vercel.app"}
             >
               <p className={menuClass}>
                 Home
