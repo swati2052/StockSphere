@@ -25,7 +25,8 @@ router.post("/signup", async (req, res, next) => {
     const token = createSecretToken(user._id);
     res.cookie("token", token, {
       httpOnly: false,
-      secure: false, // Set to true if using HTTPS
+      secure: true,
+      sameSite: "none",
     });
     res
       .status(201)
@@ -53,7 +54,8 @@ router.post("/login", async (req, res, next) => {
     const token = createSecretToken(user._id);
     res.cookie("token", token, {
       httpOnly: false,
-      secure: false,
+      secure: true,
+      sameSite: "none",
     });
     res
       .status(201)
@@ -67,7 +69,11 @@ router.post("/login", async (req, res, next) => {
 router.post("/verify", userVerification);
 
 router.post("/logout", (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", {
+    httpOnly: false,
+    secure: true,
+    sameSite: "none",
+  });
   res.status(200).json({ message: "User logged out successfully", success: true });
 });
 
